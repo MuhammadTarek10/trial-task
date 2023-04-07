@@ -28,24 +28,6 @@ def isHighResolution(image) -> bool:
     return False
 
 
-def extract_data(url):
-    chrome_options = Options()
-    chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--window-size=1920x1080")
-    chrome_options.add_argument("--disable-gpu")
-    chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--disable-dev-shm-usage")
-    driver = webdriver.Chrome(options=chrome_options)
-    driver.get(url)
-    try:
-        element = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.CLASS_NAME, "course-title"))
-        )
-    finally:
-        driver.quit()
-    return element
-
-
 class Extractor:
     def __init__(self) -> None:
         self.driver: webdriver.Chrome = self.getDriver()
@@ -59,13 +41,17 @@ class Extractor:
         self.output: dict[str:list] = {}
 
     def getDriver(self) -> webdriver.Chrome:
-        chrome_options = Options()
-        chrome_options.add_argument("--headless")
-        chrome_options.add_argument("--window-size=1920x1080")
-        chrome_options.add_argument("--disable-gpu")
-        chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("--disable-dev-shm-usage")
-        return webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+        chromeOptions = webdriver.ChromeOptions()
+        chromeOptions.add_argument("--headless")
+        chromeOptions.add_argument("--no-sandbox")
+        chromeOptions.add_argument("--disable-dev-shm-usage")
+        
+        prefs = {"profile.managed_default_content_settings.images":2}
+        chromeOptions.headless = True
+
+
+        chromeOptions.add_experimental_option("prefs", prefs)
+        return webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chromeOptions)
 
     def testGoogle(self) -> str:
         self.driver.get("https://google.com")
