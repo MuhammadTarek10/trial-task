@@ -25,5 +25,6 @@ async def getUrls(request: Request):
         extractor = Extractor()
         extractor.startTesting(urls)
         return extractor.output
-    except:
+    except Exception as e:
+        print(e)
         raise HTTPException(status_code=401, detail="Urls wrong")
