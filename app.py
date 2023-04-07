@@ -1,5 +1,6 @@
 from fastapi import FastAPI, BackgroundTasks, HTTPException, Request
 from fastapi.templating import Jinja2Templates
+from src.logic.extracting import Extractor
 
 templates = Jinja2Templates(directory="src/interface/templates")
 
@@ -18,4 +19,11 @@ async def getUrls(request: Request):
         urls = data["urls"]
     except:
         raise HTTPException(status_code=400, detail="No urls provided")
-    return {"urls": urls}
+    
+    urls = urls.rstrip().lstrip().split("\r\n")
+    try:
+        extractor = Extractor()
+        extractor.startTesting(urls)
+        return extractor.output
+    except:
+        raise HTTPException(status_code=401, detail="Urls wrong")
